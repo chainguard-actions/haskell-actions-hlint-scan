@@ -1,0 +1,1 @@
+# haskell-actions-hlint-scan
