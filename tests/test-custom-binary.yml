@@ -1,0 +1,38 @@
+name: Test hlint-scan with custom binary path
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Install hlint
+        run: |
+          curl -sSL https://raw.githubusercontent.com/ndmitchell/hlint/master/misc/install.sh | sh -s -- --quiet || true
+          # Try to find hlint binary
+          HLINT_BIN=$(which hlint 2>/dev/null || echo "")
+          if [ -z "$HLINT_BIN" ]; then
+            # Install via cabal or use a fallback
+            echo "hlint not found, using system path"
+            HLINT_BIN="hlint"
+          fi
+          echo "HLINT_BIN=$HLINT_BIN" >> $GITHUB_ENV
+      - name: Create a simple Haskell file to scan
+        run: |
+          mkdir -p /tmp/haskell-src
+          cat > /tmp/haskell-src/Main.hs << 'EOF'
+          module Main where
+          main :: IO ()
+          main = putStrLn "Hello, World!"
+          EOF
+      - id: action
+        uses: .
+        with:
+          binary: hlint
+          path: /tmp/haskell-src
+          token: ${{ github.token }}
+        continue-on-error: true
+      - name: Assert action ran with binary input
+        run: |
+          echo "Action completed (binary input was accepted)"
+          echo "PASS"

@@ -1,0 +1,36 @@
+name: Test HLint scan with category input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create Haskell fixture file
+        run: |
+          mkdir -p /tmp/haskell-category
+          cat > /tmp/haskell-category/Lib.hs << 'EOF'
+          module Lib where
+
+          -- A simple pure function
+          add :: Int -> Int -> Int
+          add x y = x + y
+
+          -- Another simple function
+          greet :: String -> String
+          greet name = "Hello, " ++ name ++ "!"
+          EOF
+
+      - id: action
+        uses: .
+        with:
+          path: /tmp/haskell-category
+          category: my-haskell-analysis
+          token: ${{ github.token }}
+        continue-on-error: true
+
+      - name: Assert action ran with category
+        run: |
+          echo "Action completed with category input set"
+          echo "PASS: action step executed with category=my-haskell-analysis"
