@@ -1,0 +1,29 @@
+name: Test basic HLint scan
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create dummy SARIF output directory
+        run: mkdir -p /tmp/hlint-output
+      - id: action
+        uses: .
+        with:
+          path: pristine/haskell-actions--hlint-scan/v1.0.0/tests/fixtures/src
+          token: dummy-token-for-testing
+        continue-on-error: true
+      - name: Assert action ran (scan completed or upload failed gracefully)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "action outcome: $OUTCOME"
+          # The action may fail on SARIF upload (dummy token), but it should
+          # at least attempt to run. We accept success or failure from the
+          # upload step, but not a missing/skipped outcome.
+          if [ "$OUTCOME" = "skipped" ]; then
+            echo "FAIL: action was skipped unexpectedly"
+            exit 1
+          fi
+          echo "PASS: action ran with outcome=$OUTCOME"

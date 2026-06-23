@@ -1,0 +1,6 @@
+# HLint configuration file for testing
+- ignore:
+    name: "Redundant lambda"
+    within: []
+- warn:
+    name: "Use map"
