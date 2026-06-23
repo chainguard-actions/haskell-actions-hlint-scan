@@ -9,6 +9,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 | Version | Tag | Upstream commit |
 |---------|-----|-----------------|
 | v1.1.0 | [`v1.1.0`](https://github.com/chainguard-actions/haskell-actions-hlint-scan/tree/v1.1.0) | [`e3b7a85`](https://github.com/haskell-actions/hlint-scan/commit/e3b7a855704f546d305d27186fb70269d25425aa) |
+| v1.2.0 | [`v1.2.0`](https://github.com/chainguard-actions/haskell-actions-hlint-scan/tree/v1.2.0) | [`3e2feb2`](https://github.com/haskell-actions/hlint-scan/commit/3e2feb228d5d90db9ba2bb93c720d83e4c06681c) |
 
 ## Privacy
 
