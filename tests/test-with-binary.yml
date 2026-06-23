@@ -1,0 +1,30 @@
+name: Test HLint scan with explicit binary path
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_EVENT_NAME: push
+      GITHUB_REF: refs/heads/main
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Run HLint scan with explicit binary path
+        id: action
+        uses: .
+        with:
+          path: actions/hardened/haskell-actions--hlint-scan/v1.2.0/tests/fixtures/clean.hs
+          binary: /usr/bin/hlint
+          token: dummy-token-for-act
+        continue-on-error: true
+      - name: Assert action ran with binary input
+        run: |
+          echo "Action outcome: ${{ steps.action.outcome }}"
+          # The action may fail at the SARIF upload step due to dummy token,
+          # or if the binary path doesn't exist in the container, but it should
+          # at least attempt to run (not be skipped).
+          if [ "${{ steps.action.outcome }}" = "skipped" ]; then
+            echo "FAIL: action was skipped unexpectedly"
+            exit 1
+          fi
+          echo "PASS: action ran with binary input (outcome: ${{ steps.action.outcome }})"

@@ -1,0 +1,3 @@
+# HLint configuration file for testing the hints input
+- ignore: {name: "Use null"}
+- ignore: {name: "Redundant bracket"}
