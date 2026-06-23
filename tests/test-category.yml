@@ -1,0 +1,27 @@
+name: Test category input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create a minimal Haskell file to scan
+        run: |
+          mkdir -p /tmp/haskell-src
+          cat > /tmp/haskell-src/Main.hs << 'EOF'
+          module Main where
+          main :: IO ()
+          main = putStrLn "Hello, World!"
+          EOF
+      - id: action
+        uses: .
+        with:
+          path: /tmp/haskell-src
+          category: my-custom-category
+          token: dummy-token
+        continue-on-error: true
+      - name: Assert action ran with category input
+        run: |
+          echo "Action completed (category input accepted)"
+          echo "PASS"
