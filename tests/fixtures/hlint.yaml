@@ -1,0 +1,2 @@
+# Minimal HLint configuration file for testing
+- ignore: {name: "Redundant bracket"}

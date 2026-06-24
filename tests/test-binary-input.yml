@@ -1,0 +1,23 @@
+name: Test HLint scan with binary input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_SHA: 0000000000000000000000000000000000000000
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Run HLint scan with explicit binary path
+        id: action
+        uses: .
+        with:
+          path: tests/fixtures/Clean.hs
+          binary: /usr/local/bin/hlint
+          fail-on: never
+          token: ${{ github.token }}
+      - name: Assert action completed successfully with binary input
+        run: |
+          echo "HLint scan with binary input completed without error"
+          echo "PASS"

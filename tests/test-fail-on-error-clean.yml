@@ -1,0 +1,22 @@
+name: Test fail-on error with clean file
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_SHA: 0000000000000000000000000000000000000000
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Run HLint scan on clean file with fail-on error
+        id: action
+        uses: .
+        with:
+          path: tests/fixtures/Clean.hs
+          fail-on: error
+          token: ${{ github.token }}
+      - name: Assert action succeeded with no errors found
+        run: |
+          echo "HLint scan completed successfully - no errors in clean file"
+          echo "PASS"

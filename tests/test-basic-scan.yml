@@ -1,0 +1,22 @@
+name: Test basic HLint scan
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_SHA: 0000000000000000000000000000000000000000
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Run HLint scan on clean Haskell file
+        id: action
+        uses: .
+        with:
+          path: tests/fixtures/Clean.hs
+          fail-on: never
+          token: ${{ github.token }}
+      - name: Assert action completed successfully
+        run: |
+          echo "HLint scan completed without error"
+          echo "PASS"
