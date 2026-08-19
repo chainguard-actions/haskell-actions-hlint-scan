@@ -1,30 +1,50 @@
 name: Test basic HLint scan
+# Tests the basic usage of the hlint-scan action:
+# scan a simple Haskell file with no issues.
+# The action runs HLint and attempts to upload SARIF to GitHub code scanning.
+# The upload may fail under act if code scanning is not enabled on the repo,
+# so we use continue-on-error and assert on the step outcome.
 on:
   workflow_dispatch:
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Create Haskell fixture file
-        run: |
-          mkdir -p /tmp/haskell-src
-          cat > /tmp/haskell-src/Main.hs << 'EOF'
-          module Main where
-
-          main :: IO ()
-          main = putStrLn "Hello, World!"
-          EOF
-
       - id: action
         uses: .
-        with:
-          path: /tmp/haskell-src
-          token: ${{ github.token }}
         continue-on-error: true
+        with:
+          path: tests/fixtures/haskell/Hello.hs
+          token: ${{ github.token }}
 
-      - name: Assert action ran
+      - name: Assert action ran (not skipped)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
         run: |
-          echo "Action completed (sarif upload may fail without real token in act)"
-          echo "PASS: action step executed"
+          echo "action outcome: $OUTCOME"
+          if [ "$OUTCOME" = "skipped" ]; then
+            echo "FAIL: action step was skipped unexpectedly"
+            exit 1
+          fi
+          echo "PASS: action step ran with outcome=$OUTCOME"
+
+      - name: Assert sarif-id is set if action succeeded
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+          SARIF_ID: ${{ steps.action.outputs.sarif-id }}
+        run: |
+          echo "action outcome: $OUTCOME"
+          echo "sarif-id: $SARIF_ID"
+          if [ "$OUTCOME" = "success" ]; then
+            if [ -z "$SARIF_ID" ]; then
+              echo "FAIL: action succeeded but sarif-id is empty"
+              exit 1
+            fi
+            echo "PASS: sarif-id is set to $SARIF_ID"
+          else
+            echo "INFO: action did not succeed (outcome=$OUTCOME), sarif-id not checked"
+            echo "INFO: This is expected if GitHub code scanning is not enabled on this repo"
+          fi

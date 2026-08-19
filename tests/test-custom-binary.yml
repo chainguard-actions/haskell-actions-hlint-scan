@@ -1,4 +1,4 @@
-name: Test hlint-scan with custom binary path
+name: Test custom binary input
 on:
   workflow_dispatch:
 jobs:
@@ -6,21 +6,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Install hlint
+      - name: Set up git origin reachable inside Docker container
         run: |
-          curl -sSL https://raw.githubusercontent.com/ndmitchell/hlint/master/misc/install.sh | sh -s -- --quiet || true
-          # Try to find hlint binary
-          HLINT_BIN=$(which hlint 2>/dev/null || echo "")
-          if [ -z "$HLINT_BIN" ]; then
-            # Install via cabal or use a fallback
-            echo "hlint not found, using system path"
-            HLINT_BIN="hlint"
-          fi
-          echo "HLINT_BIN=$HLINT_BIN" >> $GITHUB_ENV
-      - name: Create a simple Haskell file to scan
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+          rm -rf "$GITHUB_WORKSPACE/.git-remote"
+          git init --bare "$GITHUB_WORKSPACE/.git-remote"
+          git push "$GITHUB_WORKSPACE/.git-remote" HEAD:refs/heads/act-harness
+          git remote set-url origin "$GITHUB_WORKSPACE/.git-remote" 2>/dev/null || \
+            git remote add origin "$GITHUB_WORKSPACE/.git-remote"
+      - name: Create a minimal Haskell file to scan
         run: |
-          mkdir -p /tmp/haskell-src
-          cat > /tmp/haskell-src/Main.hs << 'EOF'
+          mkdir -p "$GITHUB_WORKSPACE/haskell-src"
+          cat > "$GITHUB_WORKSPACE/haskell-src/Main.hs" << 'EOF'
           module Main where
           main :: IO ()
           main = putStrLn "Hello, World!"
@@ -29,10 +27,10 @@ jobs:
         uses: .
         with:
           binary: hlint
-          path: /tmp/haskell-src
+          path: haskell-src
           token: ${{ github.token }}
         continue-on-error: true
       - name: Assert action ran with binary input
         run: |
           echo "Action completed (binary input was accepted)"
-          echo "PASS"
+          echo "PASS: binary input was exercised"

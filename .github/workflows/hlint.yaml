@@ -1,0 +1,22 @@
+name: HLint
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '5 4 14 * *'
+
+jobs:
+  hlint:
+    name: Scan code with HLint
+    runs-on: ubuntu-latest
+    permissions:
+      # Needed to upload the results.
+      security-events: write
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: haskell-actions/hlint-scan@a99e50c562954d0c73211df1d7dabd33128b1098 # v1
