@@ -41,7 +41,7 @@ outputs:
 
 runs:
   using: docker
-  image: docker://ghcr.io/haskell-actions/hlint-scan@sha256:e29c0529d40b759655e7d861add6b96c2e72b0aa28dc493dbdba5b4b6fda5ac6 # v1.2.0
+  image: docker://ghcr.io/haskell-actions/hlint-scan:v1.2.0@sha256:e29c0529d40b759655e7d861add6b96c2e72b0aa28dc493dbdba5b4b6fda5ac6
   args:
     - binary=${{ inputs.binary }}
     - path=${{ inputs.path }}

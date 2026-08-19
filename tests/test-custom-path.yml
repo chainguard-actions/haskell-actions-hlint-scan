@@ -1,4 +1,4 @@
-name: Test basic HLint scan
+name: Test HLint scan with custom path
 on:
   workflow_dispatch:
 jobs:
@@ -30,26 +30,25 @@ jobs:
           fi
           echo "PASS: fixture file exists"
 
-      - name: Run HLint scan on fixture Haskell file
+      - name: Run HLint scan on specific Haskell file
         id: action
         uses: .
         continue-on-error: true
         with:
-          path: tests/fixtures/haskell
+          path: tests/fixtures/haskell/Example.hs
           token: ${{ github.token }}
 
-      - name: Assert action ran (hlint scan executed)
+      - name: Assert action ran with custom path
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "action outcome: $OUTCOME"
           # The action may fail at the SARIF upload step if code scanning
           # is not enabled on this repository, but it should not fail
-          # before that (i.e., hlint itself should run successfully).
-          # We accept both success and failure outcomes here, but not
-          # a missing/skipped outcome.
+          # before that (i.e., hlint itself should run successfully on
+          # the specified file path).
           if [ "$OUTCOME" = "skipped" ]; then
             echo "FAIL: action was skipped unexpectedly"
             exit 1
           fi
-          echo "PASS: action ran (outcome=$OUTCOME)"
+          echo "PASS: action ran with custom path (outcome=$OUTCOME)"

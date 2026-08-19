@@ -1,29 +1,55 @@
-name: Test HLint scan with category input
+name: Test HLint scan with category
 on:
   workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      GITHUB_EVENT_NAME: push
-      GITHUB_REF: refs/heads/main
+      GITHUB_REF: refs/heads/act-harness
+      GITHUB_SHA: ${{ github.sha }}
+      GITHUB_REPOSITORY: ${{ github.repository }}
+      GITHUB_WORKSPACE: /github/workspace
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Run HLint scan with category specified
+
+      - name: Set up git origin reachable inside Docker container
+        run: |
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+          rm -rf "$GITHUB_WORKSPACE/.git-remote"
+          git init --bare "$GITHUB_WORKSPACE/.git-remote"
+          git push "$GITHUB_WORKSPACE/.git-remote" HEAD:refs/heads/act-harness
+          git remote set-url origin "$GITHUB_WORKSPACE/.git-remote" 2>/dev/null || \
+            git remote add origin "$GITHUB_WORKSPACE/.git-remote"
+
+      - name: Verify fixture directory exists
+        run: |
+          if [ ! -d "tests/fixtures/haskell" ]; then
+            echo "FAIL: fixture directory not found"
+            exit 1
+          fi
+          echo "PASS: fixture directory exists"
+
+      - name: Run HLint scan with category label
         id: action
         uses: .
-        with:
-          path: pristine/haskell-actions--hlint-scan/v1.2.0/tests/fixtures/clean.hs
-          category: my-hlint-scan
-          token: dummy-token-for-act
         continue-on-error: true
+        with:
+          path: tests/fixtures/haskell
+          category: haskell-lint
+          token: ${{ github.token }}
+
       - name: Assert action ran with category
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
         run: |
-          echo "Action outcome: ${{ steps.action.outcome }}"
-          # The action may fail at the SARIF upload step due to dummy token,
-          # but it should at least start and run HLint.
-          if [ "${{ steps.action.outcome }}" = "skipped" ]; then
+          echo "action outcome: $OUTCOME"
+          # The action may fail at the SARIF upload step if code scanning
+          # is not enabled on this repository, but it should not fail
+          # before that (i.e., hlint itself should run successfully with
+          # the specified category label).
+          if [ "$OUTCOME" = "skipped" ]; then
             echo "FAIL: action was skipped unexpectedly"
             exit 1
           fi
-          echo "PASS: action ran with category input (outcome: ${{ steps.action.outcome }})"
+          echo "PASS: action ran with category (outcome=$OUTCOME)"

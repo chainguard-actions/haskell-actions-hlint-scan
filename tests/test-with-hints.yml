@@ -1,29 +1,33 @@
-name: Test HLint scan with hints configuration file
+name: Test with hints input
 on:
   workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_EVENT_NAME: push
-      GITHUB_REF: refs/heads/main
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Run HLint scan with hints config file
-        id: action
+        with:
+          fetch-depth: 0
+
+      - name: Set up a git origin reachable inside the Docker container
+        run: |
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+          rm -rf "$GITHUB_WORKSPACE/.git-remote"
+          git init --bare "$GITHUB_WORKSPACE/.git-remote"
+          git push "$GITHUB_WORKSPACE/.git-remote" HEAD:refs/heads/act-harness
+          git push "$GITHUB_WORKSPACE/.git-remote" --tags
+          git remote set-url origin "$GITHUB_WORKSPACE/.git-remote" 2>/dev/null || \
+            git remote add origin "$GITHUB_WORKSPACE/.git-remote"
+
+      - id: action
         uses: .
         with:
-          path: actions/hardened/haskell-actions--hlint-scan/v1.2.0/tests/fixtures/with-hints.hs
-          hints: actions/hardened/haskell-actions--hlint-scan/v1.2.0/tests/fixtures/hlint-hints.yaml
-          token: dummy-token-for-act
-        continue-on-error: true
-      - name: Assert action ran with hints input
+          path: hardened/tests/fixtures/haskell
+          hints: hardened/tests/fixtures/hlint-hints/.hlint.yaml
+          token: ${{ github.token }}
+
+      - name: Assert action completed without error
         run: |
-          echo "Action outcome: ${{ steps.action.outcome }}"
-          # The action may fail at the SARIF upload step due to dummy token,
-          # but it should at least start and run HLint with the hints config.
-          if [ "${{ steps.action.outcome }}" = "skipped" ]; then
-            echo "FAIL: action was skipped unexpectedly"
-            exit 1
-          fi
-          echo "PASS: action ran with hints input (outcome: ${{ steps.action.outcome }})"
+          echo "Action completed successfully with hints input"
+          echo "PASS"
