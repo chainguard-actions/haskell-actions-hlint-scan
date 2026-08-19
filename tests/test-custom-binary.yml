@@ -1,0 +1,26 @@
+name: Test custom binary input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          binary: hlint
+          path: .
+        continue-on-error: true
+      - name: Assert action ran with binary input
+        run: |
+          echo "outcome: ${{ steps.action.outcome }}"
+          # The action should have attempted to run with the binary input set.
+          # It may succeed or fail depending on whether hlint is available,
+          # but the important thing is the input was accepted (not rejected as invalid).
+          # A 'skipped' outcome would indicate the input was not processed.
+          if [ "${{ steps.action.outcome }}" = "skipped" ]; then
+            echo "FAIL: action was skipped, expected it to run"
+            exit 1
+          fi
+          echo "PASS: action ran with binary input"

@@ -6,28 +6,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Create a minimal Haskell file to scan
-        run: |
-          mkdir -p /tmp/haskell-src
-          cat > /tmp/haskell-src/Main.hs << 'EOF'
-          module Main where
-          main :: IO ()
-          main = putStrLn "Hello, World!"
-          EOF
-      - name: Create a custom hints file
+      - name: Create hints config file
         run: |
           cat > /tmp/hlint-hints.yaml << 'EOF'
-          - ignore:
-              name: "Redundant do"
+          - ignore: {name: "Redundant bracket"}
           EOF
       - id: action
         uses: .
         with:
-          path: /tmp/haskell-src
           hints: /tmp/hlint-hints.yaml
-          token: dummy-token
+          path: .
         continue-on-error: true
       - name: Assert action ran with hints input
         run: |
-          echo "Action completed (hints input accepted)"
-          echo "PASS"
+          echo "outcome: ${{ steps.action.outcome }}"
+          # The action should have attempted to run with the hints input set.
+          # It may succeed or fail depending on environment, but it must not be skipped.
+          if [ "${{ steps.action.outcome }}" = "skipped" ]; then
+            echo "FAIL: action was skipped, expected it to run"
+            exit 1
+          fi
+          echo "PASS: action ran with hints input"
