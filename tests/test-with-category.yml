@@ -1,0 +1,22 @@
+name: Test HLint scan with category input
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Run HLint scan with category specified
+        id: action
+        uses: .
+        with:
+          path: tests/fixtures/haskell/Clean.hs
+          category: hlint-test-category
+          fail-on: never
+
+      - name: Assert action completed successfully with category
+        run: |
+          echo "HLint scan with category input completed without error"
+          echo "PASS: category input accepted and scan ran successfully"

@@ -1,0 +1,22 @@
+name: Test HLint scan with explicit binary path
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Run HLint scan with explicit binary input set to hlint
+        id: action
+        uses: .
+        with:
+          path: tests/fixtures/haskell/Clean.hs
+          binary: hlint
+          fail-on: never
+
+      - name: Assert action completed successfully with explicit binary
+        run: |
+          echo "HLint scan with explicit binary input completed without error"
+          echo "PASS: binary input accepted and scan ran successfully"

@@ -1,0 +1,22 @@
+name: Test HLint scan with custom hints file
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Run HLint scan with custom hints configuration
+        id: action
+        uses: .
+        with:
+          path: tests/fixtures/haskell/Clean.hs
+          hints: tests/fixtures/custom-hints.yaml
+          fail-on: never
+
+      - name: Assert action completed successfully with custom hints
+        run: |
+          echo "HLint scan with custom hints completed without error"
+          echo "PASS: hints input accepted and scan ran successfully"

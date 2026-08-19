@@ -1,0 +1,56 @@
+name: Build
+permissions:
+  contents: read
+
+on:
+  push:
+
+  workflow_call:
+    inputs:
+      coverage:
+        required: false
+        type: boolean
+
+jobs:
+  build:
+    concurrency: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Cache dependencies
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: ~/.stack
+          key: stack-${{ hashFiles('package.yaml', 'stack.yaml') }}
+          restore-keys: stack-
+
+      - name: Cache build artifacts
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: .stack-work
+          key: build-${{ hashFiles('app/**', 'src/**', 'test/**') }}
+          restore-keys: build-
+
+      - uses: haskell-actions/setup@bbd90a29996ac33b1c644a42206e312fc0379748 # v2.7.9
+        with:
+          enable-stack: true
+
+      - name: Build and test
+        if: ${{ !inputs.coverage }}
+        run: stack build --test
+
+      - name: Coverage
+        id: coverage
+        if: ${{ inputs.coverage }}
+        run: |
+          stack build --test --coverage
+          echo "report=$(stack path --local-hpc-root)" >> $GITHUB_OUTPUT
+
+      - name: Upload coverage report
+        if: ${{ inputs.coverage }}
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: coverage-report
+          path: ${{ steps.coverage.outputs.report }}

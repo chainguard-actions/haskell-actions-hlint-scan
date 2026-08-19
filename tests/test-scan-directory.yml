@@ -1,0 +1,21 @@
+name: Test HLint scan on a directory
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Run HLint scan on a directory
+        id: action
+        uses: .
+        with:
+          path: tests/fixtures/haskell
+          fail-on: never
+
+      - name: Assert directory scan completed
+        run: |
+          echo "Directory scan completed without error"
+          echo "PASS: HLint can scan an entire directory with fail-on: never"

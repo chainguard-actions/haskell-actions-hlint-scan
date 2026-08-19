@@ -1,0 +1,21 @@
+name: Test HLint scan with fail-on warning on clean code
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Run HLint scan on clean file with fail-on warning
+        id: action
+        uses: .
+        with:
+          path: tests/fixtures/haskell/Clean.hs
+          fail-on: warning
+
+      - name: Assert action succeeded on clean code
+        run: |
+          echo "Action completed successfully on clean Haskell code"
+          echo "PASS: fail-on: warning did not trigger on clean code"
