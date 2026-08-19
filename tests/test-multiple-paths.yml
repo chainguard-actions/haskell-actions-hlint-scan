@@ -1,4 +1,4 @@
-name: Test basic HLint scan
+name: Test HLint scan with multiple paths
 on:
   workflow_dispatch:
 jobs:
@@ -23,7 +23,7 @@ jobs:
         uses: .
         continue-on-error: true
         with:
-          path: action/src
+          path: action/src action/app
           token: ${{ github.token }}
 
       - name: Assert action ran (not skipped)
