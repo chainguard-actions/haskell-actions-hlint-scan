@@ -1,0 +1,3 @@
+# HLint configuration file for testing
+- ignore: {name: "Redundant do"}
+- ignore: {name: "Use camelCase"}
