@@ -13,6 +13,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 | v1.1.0 | [`v1.1.0`](https://github.com/chainguard-actions/haskell-actions-hlint-scan/tree/v1.1.0) | [`e3b7a85`](https://github.com/haskell-actions/hlint-scan/commit/e3b7a855704f546d305d27186fb70269d25425aa) |
 | v1.2.0 | [`v1.2.0`](https://github.com/chainguard-actions/haskell-actions-hlint-scan/tree/v1.2.0) | [`3e2feb2`](https://github.com/haskell-actions/hlint-scan/commit/3e2feb228d5d90db9ba2bb93c720d83e4c06681c) |
 | v1.3.0 | [`v1.3.0`](https://github.com/chainguard-actions/haskell-actions-hlint-scan/tree/v1.3.0) | [`abd8bbb`](https://github.com/haskell-actions/hlint-scan/commit/abd8bbb55afd1ec2c86bc28e081c1ca49037dd9c) |
+| v1.4.0 | [`v1.4.0`](https://github.com/chainguard-actions/haskell-actions-hlint-scan/tree/v1.4.0) | [`58c2708`](https://github.com/haskell-actions/hlint-scan/commit/58c27088e4e1a45d453d9ade58b5ad34d09b0627) |
 
 ## Privacy
 
